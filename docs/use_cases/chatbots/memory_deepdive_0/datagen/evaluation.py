@@ -18,6 +18,9 @@ TODO:
     - have an argument to "use cached" results
 -
 """
+import argparse
+from datetime import datetime
+import json
 import os
 from tqdm import tqdm
 
@@ -33,25 +36,39 @@ from langchain.memory import (
 )
 from langchain.schema import AIMessage, HumanMessage
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--model", default="gpt-3.5-turbo", help="name of the model to use")
+parser.add_argument("--memory", help="name of the memory model to use")
+parser.add_argument("--question", help="specific question to run")
+parser.add_argument(
+    "--use_cache", action="store_true", help="use cached responses if available"
+)
+parser.add_argument("--debug", action="store_true", help="turn on debugging")
 
-MODEL_NAME = "gpt-3.5-turbo"
-# MODEL_NAME = "gpt-4"
+args = parser.parse_args()
+
+#############
+# CONSTANTS #
+#############
+
+
 MAX_TOKENS = {"gpt-3.5-turbo": 4096, "gpt-4": 8192}
-LLM = ChatOpenAI(model_name=MODEL_NAME, temperature=0)
+LLM = ChatOpenAI(model_name=args.model, temperature=0)
 
+RESULTS_DIR = "results"
 QUESTIONS_FILE = "questions.txt"
+QUESTIONS_DEBUGFILE = "questions_debug.txt"
 DIALOGUE_DIR = "dialogues/5-15-23"
 MEMORY_MODELS = {
-    # "memoryless": None,
-    # "full_list": lambda: ConversationBufferMemory(),
-    # "last_n_tokens": lambda: ConversationTokenBufferMemory(
-    #     llm=LLM,
-    #     max_token_limit=MAX_TOKENS[MODEL_NAME],
-    #     # max_token_limit=4096,
-    # ),
-    # "full_summary": lambda: ConversationSummaryMemory(llm=LLM),
+    "memoryless": None,
+    "full_list": lambda: ConversationBufferMemory(),
+    "last_n_tokens": lambda: ConversationTokenBufferMemory(
+        llm=LLM,
+        max_token_limit=MAX_TOKENS[args.model],
+    ),
+    "full_summary": lambda: ConversationSummaryMemory(llm=LLM),
     "last_n_tokens_with_summary": lambda: ConversationSummaryBufferMemory(
-        llm=LLM, max_token_limit=MAX_TOKENS[MODEL_NAME]
+        llm=LLM, max_token_limit=MAX_TOKENS[args.model]
     ),
 }
 
@@ -120,33 +137,86 @@ def ingest_dialogues(memory, dialogue_chats):
 
 
 ###########
-# RESULTS #
+# LOGGING #
 ###########
+
+
+def load_json(filename):
+    if os.path.exists(filename):
+        with open(filename, "r") as f:
+            data = json.load(f)
+    else:
+        data = {}
+    return data
+
+
+def save_json(filename, data):
+    with open(filename, "w") as f:
+        json.dump(data, f, indent=4)
+
+
+def create_results_dir():
+    # Get the current date and hour
+    current_date_hour = datetime.now().strftime("%Y-%m-%d_%H")
+
+    # Get the current minute and round to the nearest half hour
+    current_minute = datetime.now().minute
+    rounded_minute = "00" if current_minute < 30 else "30"
+
+    # Create a new directory for the current date and hour if it doesn't already exist
+    results_dir = f"{RESULTS_DIR}/{current_date_hour}-{rounded_minute}"
+    os.makedirs(results_dir, exist_ok=True)
+
+    return results_dir
 
 
 # can cache and load responses
 def main():
     dialogue_chats = load_data(DIALOGUE_DIR)
-    questions = open(QUESTIONS_FILE, "r").read().split("\n")
+    if args.debug:
+        questions = open(QUESTIONS_DEBUGFILE, "r").read().split("\n")
+    else:
+        questions = open(QUESTIONS_FILE, "r").read().split("\n")
 
     for memory_name, memory in MEMORY_MODELS.items():
+        if args.memory and memory_name != args.memory:
+            continue
         print(f"Memory model: {memory_name}")
+        print("-" * 20)
+
+        results_dir = create_results_dir()
+
+        responses_filename = f"responses_{args.model}_{memory_name}.json"
+        if args.debug:
+            responses_filename = "debug_" + responses_filename
+        responses_path = os.path.join(results_dir, responses_filename)
+
+        responses = load_json(responses_path)
+
         if memory is not None:
             memory = ingest_dialogues(memory(), dialogue_chats)
             chain = ConversationChain(llm=LLM, memory=memory)
         else:
             chain = LLMChain(llm=LLM, prompt=PromptTemplate.from_template("{input}"))
-            # chain = lambda x: llm([HumanMessage(content=x)])
 
         for question in questions:
+            if args.question and question != args.question:
+                continue
             print(f"Question: {question}")
-            try:
-                response = chain.predict(input=question)
-            except Exception as e:
-                print(f"Exception: {e}")
-                response = e
-            print(f"Response: {response}")
-            print("=====================================")
+
+            if question in responses and args.use_cache:
+                print(f"Response: {responses[question]} (cached)")
+            else:
+                try:
+                    response = chain.predict(input=question)
+                except Exception as e:
+                    print(f"Exception: {e}")
+                    response = str(e)
+                print(f"Response: {response}")
+                responses[question] = response
+            print("=" * 20)
+        save_json(responses_path, responses)
+        print("#" * 20)
 
 
 if __name__ == "__main__":
