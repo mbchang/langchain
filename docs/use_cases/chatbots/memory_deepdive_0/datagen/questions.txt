@@ -1,11 +1,12 @@
-What is the narrator’s name?
-Who are the narrator’s friends?
-Who is the narrator's best friend?
-What are the narrator's insecurities?
-What are the narrator's hobbies?
-What are the narrator's vices?
-What are the narrator's virtues?
-What are concepts that are not obvious to the narrator?
-What is one thing that the narrator believes that others do not believe?
-What is the narrator's most embarrassing memory?
-Who does the narrator spend the most time with?
+What is my name?
+Who are my friends?
+Who is my best friend?
+List all the people in my life.
+What are my insecurities?
+What are my hobbies?
+What are my vices?
+What are my virtues?
+What are concepts that are not obvious to me?
+What is one thing that I believe that others do not believe?
+What is my most embarrassing memory?
+Who do I spend the most time with?
