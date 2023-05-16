@@ -12,11 +12,7 @@
 Check out the log at log.md
 
 TODO:
-- add argument parser
-- save results to json file
-- be able to load results from json file and "use cached" results
-    - have an argument to "use cached" results
--
+- use a token limit for the generation, that is based on the chat history tokens (and system message) so far
 """
 import argparse
 from collections import OrderedDict
@@ -211,7 +207,7 @@ def main():
 
         if memory is not None:
             memory = ingest_dialogues(memory(), dialogue_chats)
-            chain = ConversationChain(llm=LLM, memory=memory)
+            chain = ConversationChain(llm=LLM, memory=memory, verbose=True)
         else:
             chain = LLMChain(llm=LLM, prompt=PromptTemplate.from_template("{input}"))
 
