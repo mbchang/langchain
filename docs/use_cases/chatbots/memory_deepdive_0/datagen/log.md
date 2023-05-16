@@ -55,6 +55,8 @@
 - `last_n_tokens_with_summary`:
     - also takes a long time because you recompute the summary after each additional memory that gets added into the buffer once the buffer exceeds its limit
     - it took 50 minutes to load and summarize 17 chapters. (gpt-3.5)
+    - it took 40 minutes to load and summarize 23 chapters (gpt-4)
+    - I ran into token limits when calculating my response for this memory model. Perhaps the memory model should automatically try to take care of this?
 
 
 - overall
