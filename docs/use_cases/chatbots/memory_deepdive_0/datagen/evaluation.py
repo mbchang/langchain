@@ -19,7 +19,9 @@ TODO:
 -
 """
 import argparse
+from collections import OrderedDict
 from datetime import datetime
+import glob
 import json
 import os
 from tqdm import tqdm
@@ -35,6 +37,8 @@ from langchain.memory import (
     ConversationTokenBufferMemory,
 )
 from langchain.schema import AIMessage, HumanMessage
+
+import datagen
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", default="gpt-3.5-turbo", help="name of the model to use")
@@ -79,15 +83,27 @@ MEMORY_MODELS = {
 
 
 def load_data(data_dir):
-    dialogues = {}
-    for filename in os.listdir(data_dir):
+    chapters = datagen.load_chapter_delimiters()
+
+    dialogues = OrderedDict()
+    for chapter in chapters:
+        matches = glob.glob(f"{data_dir}/*{chapter.replace(' ', '-')}.txt")
+        if len(matches) > 1:
+            print(f"More than one match found for chapter: {chapter}")
+            continue
+        elif not matches:  # No matches found
+            print(f"No matches found for chapter: {chapter}")
+            continue
+
+        filename = matches[0].split("/")[-1]
         with open(f"{data_dir}/{filename}", "r") as f:
             dialogues[filename] = f.read()
 
     # turn each dialogue into a chat history object
-    dialogue_chats = {}
+    dialogue_chats = OrderedDict()
     for filename, dialogue in dialogues.items():
         dialogue_chats[filename] = convert_to_chat_history(dialogue)
+
     return dialogue_chats
 
 

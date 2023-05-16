@@ -10,6 +10,7 @@ If I directly ask the question: "what is the name of the narrator", GPT4 answers
 
 """
 import asyncio
+from collections import OrderedDict
 import re
 
 from langchain.chat_models import ChatOpenAI
@@ -32,34 +33,36 @@ def load_data():
 
 
 def load_chapter_delimiters():
-    CHAPTERS = {
-        "PROLOGUE": r"PROLOGUE\n\nDear Nick, \n\nWhat keeps sticking out is the first thing you said to me: Tell me I’m wrong.",
-        "RULE NUMBER 1": r"RULE NUMBER 1\n\nBros",
-        "RULE NUMBER 2": r"RULE NUMBER 2\n\nA bro shalt not get",
-        "RULE NUMBER 3": r"RULE NUMBER 3\n\nA bro shalt always finish telling his joke.",
-        "RULE NUMBER 4": r"RULE NUMBER 4\nThe Dating Clause: If a girl matches any of the following criteria,",
-        "RULE NUMBER 5": r"RULE NUMBER 5\n\nA bro shalt not wake up before 11:00 a.m. on a Saturday.\n\n\n\nThe clock read 10:07 a.m.",
-        "RULE NUMBER 6": r"RULE NUMBER 6\n\nA bro shalt not swim in",
-        "RULE NUMBER 7": r"RULE NUMBER 7\n\nA bro shalt set up another bro only if he has asked to be set up.",
-        "RULE NUMBER 8": r"RULE NUMBER 8\n\nA bro shalt not back down from spicy foods.",
-        "RULE NUMBER 9": r"RULE NUMBER 9\n\nA bro shalt not shop.\n\n\n\nEliza",
-        "RULE NUMBER 10": r"RULE NUMBER 10\n\nA bro shalt make the first move. \n\n\n\nFinally, it was Friday",
-        "RULE NUMBER 11": r"RULE NUMBER 11\n\nThe forty-eight-hour rule. \n\n\n\nEliza.",
-        "RULE NUMBER 12": r"RULE NUMBER 12\n\nA bro shalt not talk to a chick on the phone unless she is his relative or girlfriend.",
-        "RULE NUMBER 13": r"RULE NUMBER 13\n\nA bro shalt treat his mother like a queen.",
-        "RULE NUMBER 14": r"RULE NUMBER 14\n\nA bro shalt never half-ass a first date.",
-        "RULE NUMBER 15": r"RULE NUMBER 15\n\nA bro shalt not tell non-bros the rules of the Bro Code.",
-        "RULE NUMBER 16": r"RULE NUMBER 16\n\nA bro shalt always check his phone.\n\n\n\nWe played in the pool for a long time.",
-        "RULE NUMBER 17": r"RULE NUMBER 17\n\nA bro shalt always keep his cool. \n\n\n\nI",
-        "RULE NUMBER 18": r"RULE NUMBER 18\n\nA bro shalt not use the",
-        "RULE NUMBER 19": r"RULE NUMBER 19\n\nA bro shalt not punch another bro in his face.",
-        "RULE NUMBER 20": r"RULE NUMBER 20\n\nA bro shalt not complain about working out.",
-        "RULE NUMBER 21": r"RULE NUMBER 21 \n\nA bro shalt not make his girl cry. \n\n",
-        "RULE NUMBER 22": r"RULE NUMBER 22\n\nA bro shalt cheat only on his homework.",
-        "Epilogue": r"Epilogue \n\n",
-        "The Bro Code": r"The Bro Code\n\nBy Austin Banks, Nick Maguire, and Carter O’Connor—the OBs\n\n\n\n",
-        "ACKNOWLEDGEMENTS": r"ACKNOWLEDGMENTS \n\n\n\nFirst, I thank you, cool reader,",
-    }
+    CHAPTERS = OrderedDict(
+        {
+            "PROLOGUE": r"PROLOGUE\n\nDear Nick, \n\nWhat keeps sticking out is the first thing you said to me: Tell me I’m wrong.",
+            "RULE NUMBER 1": r"RULE NUMBER 1\n\nBros",
+            "RULE NUMBER 2": r"RULE NUMBER 2\n\nA bro shalt not get",
+            "RULE NUMBER 3": r"RULE NUMBER 3\n\nA bro shalt always finish telling his joke.",
+            "RULE NUMBER 4": r"RULE NUMBER 4\nThe Dating Clause: If a girl matches any of the following criteria,",
+            "RULE NUMBER 5": r"RULE NUMBER 5\n\nA bro shalt not wake up before 11:00 a.m. on a Saturday.\n\n\n\nThe clock read 10:07 a.m.",
+            "RULE NUMBER 6": r"RULE NUMBER 6\n\nA bro shalt not swim in",
+            "RULE NUMBER 7": r"RULE NUMBER 7\n\nA bro shalt set up another bro only if he has asked to be set up.",
+            "RULE NUMBER 8": r"RULE NUMBER 8\n\nA bro shalt not back down from spicy foods.",
+            "RULE NUMBER 9": r"RULE NUMBER 9\n\nA bro shalt not shop.\n\n\n\nEliza",
+            "RULE NUMBER 10": r"RULE NUMBER 10\n\nA bro shalt make the first move. \n\n\n\nFinally, it was Friday",
+            "RULE NUMBER 11": r"RULE NUMBER 11\n\nThe forty-eight-hour rule. \n\n\n\nEliza.",
+            "RULE NUMBER 12": r"RULE NUMBER 12\n\nA bro shalt not talk to a chick on the phone unless she is his relative or girlfriend.",
+            "RULE NUMBER 13": r"RULE NUMBER 13\n\nA bro shalt treat his mother like a queen.",
+            "RULE NUMBER 14": r"RULE NUMBER 14\n\nA bro shalt never half-ass a first date.",
+            "RULE NUMBER 15": r"RULE NUMBER 15\n\nA bro shalt not tell non-bros the rules of the Bro Code.",
+            "RULE NUMBER 16": r"RULE NUMBER 16\n\nA bro shalt always check his phone.\n\n\n\nWe played in the pool for a long time.",
+            "RULE NUMBER 17": r"RULE NUMBER 17\n\nA bro shalt always keep his cool. \n\n\n\nI",
+            "RULE NUMBER 18": r"RULE NUMBER 18\n\nA bro shalt not use the",
+            "RULE NUMBER 19": r"RULE NUMBER 19\n\nA bro shalt not punch another bro in his face.",
+            "RULE NUMBER 20": r"RULE NUMBER 20\n\nA bro shalt not complain about working out.",
+            "RULE NUMBER 21": r"RULE NUMBER 21 \n\nA bro shalt not make his girl cry. \n\n",
+            "RULE NUMBER 22": r"RULE NUMBER 22\n\nA bro shalt cheat only on his homework.",
+            "Epilogue": r"Epilogue \n\n",
+            "The Bro Code": r"The Bro Code\n\nBy Austin Banks, Nick Maguire, and Carter O’Connor—the OBs\n\n\n\n",
+            "ACKNOWLEDGEMENTS": r"ACKNOWLEDGMENTS \n\n\n\nFirst, I thank you, cool reader,",
+        }
+    )
     return CHAPTERS
 
 
