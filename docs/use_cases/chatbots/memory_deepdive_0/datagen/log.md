@@ -54,7 +54,7 @@
     - takes a very long time to ingest the entire history
 - `last_n_tokens_with_summary`:
     - also takes a long time because you recompute the summary after each additional memory that gets added into the buffer once the buffer exceeds its limit
-    - it took 50 minutes to load and summarize 17 chapters.
+    - it took 50 minutes to load and summarize 17 chapters. (gpt-3.5)
 
 
 - overall
