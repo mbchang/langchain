@@ -13,6 +13,7 @@ Check out the log at log.md
 
 TODO:
 - use a token limit for the generation, that is based on the chat history tokens (and system message) so far
+- record the summary in the saved file
 """
 import argparse
 from collections import OrderedDict
