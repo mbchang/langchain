@@ -13,6 +13,7 @@ Check out the log at log.md
 
 TODO:
 - use a token limit for the generation, that is based on the chat history tokens (and system message) so far
+- record the summary in the saved file
 """
 import argparse
 from collections import OrderedDict
@@ -38,7 +39,9 @@ import datagen
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", default="gpt-3.5-turbo", help="name of the model to use")
-parser.add_argument("--memory", help="name of the memory model to use")
+parser.add_argument(
+    "--memory", default="last_n_tokens", help="name of the memory model to use"
+)
 parser.add_argument("--question", help="specific question to run")
 parser.add_argument(
     "--use_cache", action="store_true", help="use cached responses if available"
@@ -207,6 +210,7 @@ def main():
 
         if memory is not None:
             memory = ingest_dialogues(memory(), dialogue_chats)
+            # TODO: essentially here we'd need to enforce max tokens
             chain = ConversationChain(llm=LLM, memory=memory, verbose=True)
         else:
             chain = LLMChain(llm=LLM, prompt=PromptTemplate.from_template("{input}"))
