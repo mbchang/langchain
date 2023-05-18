@@ -38,7 +38,7 @@ from langchain.schema import AIMessage, HumanMessage
 import datagen
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--model", default="gpt-3.5-turbo", help="name of the model to use")
+parser.add_argument("--model", default="gpt-4", help="name of the model to use")
 parser.add_argument(
     "--memory", default="last_n_tokens", help="name of the memory model to use"
 )
@@ -61,6 +61,7 @@ LLM = ChatOpenAI(model_name=args.model, temperature=0)
 RESULTS_DIR = "results"
 QUESTIONS_FILE = "questions.txt"
 QUESTIONS_DEBUGFILE = "questions_debug.txt"
+# QUESTIONS_DEBUGFILE = "questions_that_stump_last_n_tokens.txt"
 DIALOGUE_DIR = "dialogues/5-15-23"
 MEMORY_MODELS = {
     "memoryless": None,
@@ -127,13 +128,13 @@ def convert_to_chat_history(dialogue):
 ##########
 
 
-def extend_memory(memory, dialogue_chat):
+def extend_memory(memory, chat_history):
     """
     TODO: add this capability to ChatMessageHistory
     """
-    for i in range(0, len(dialogue_chat.messages) - 1, 2):
-        human_message = dialogue_chat.messages[i]
-        ai_message = dialogue_chat.messages[i + 1]
+    for i in range(0, len(chat_history.messages) - 1, 2):
+        human_message = chat_history.messages[i]
+        ai_message = chat_history.messages[i + 1]
         assert isinstance(human_message, HumanMessage)
         assert isinstance(ai_message, AIMessage)
         memory.save_context(

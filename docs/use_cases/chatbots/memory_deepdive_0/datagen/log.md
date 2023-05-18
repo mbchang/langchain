@@ -5,11 +5,12 @@
     - from looking at the code it doesn't look like it.
 
 # Issues:
-- I cannot extend the ChatMessageHistory with another ChatMessageHistory
 - load_memory_variables in ConversationBufferMemory does not use the inputs argument
 - right now the memory objects force you to add an (Human, AI) message pair together, but I want to be able to add them separately
 - Can I just have an LLM chain that does not take a prompt template? I just want it to wrap a normal LLM without a predefined prompt template.
 - Probably need to also make the "time-weighted" feature compatible with all other memory systems too
+- I cannot do `chain.predict()` with max tokens.
+- Potential Improvement #3: Right now memory objects assume that each message is a HumanMessage or an AIMessage. The reason for this is that LLM providers only allow for assistant and user messages. If we were doing agent simulations with 2 agents, then we could just pretend the other agent is a human. But if we have three agents, then we would want a way to tag each message with a role. My understanding is that ChatMessage allows us to define a role for an arbitrary speaker, but (TODO finish writing)
 
 # Observations:
 - `last_n_tokens`:
