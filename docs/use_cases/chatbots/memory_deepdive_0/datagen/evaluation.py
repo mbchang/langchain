@@ -14,6 +14,19 @@ Check out the log at log.md
 TODO:
 - use a token limit for the generation, that is based on the chat history tokens (and system message) so far
 - record the summary in the saved file
+- change system message for conversation chain: answers should be personalized to the human as possible
+-
+
+Goals
+- relevance semantic search
+- reflection
+
+Benchamrk: memory, retriever,
+
+for retriever:
+- use vectorstore with FAISS
+
+
 """
 import argparse
 from collections import OrderedDict
@@ -75,6 +88,10 @@ MEMORY_MODELS = {
         llm=LLM, max_token_limit=MAX_TOKENS[args.model]
     ),
 }
+# just do every last 20 messages
+# give a buffer for how many tokens for response
+# cache the memories at their end states, including summaries
+#
 
 
 ###############
@@ -123,6 +140,23 @@ def convert_to_chat_history(dialogue):
     return chat_history
 
 
+def convert_to_chat_history_flipped(dialogue):
+    chat_history = ChatMessageHistory()
+    narrator_delim = "Narrator: "
+    ai_delim = "AI: "
+    for message in dialogue.split("\n\n"):
+        # flips the role of ai and human in the dialogue
+        if message.startswith(narrator_delim):
+            chat_history.add_ai_message(message[len(narrator_delim) :])
+        elif message.startswith(ai_delim):
+            chat_history.add_user_message(message[len(ai_delim) :])
+        else:
+            raise ValueError(
+                f"Message does not start with {narrator_delim} or {ai_delim}"
+            )
+    return chat_history
+
+
 ##########
 # MEMORY #
 ##########
@@ -137,6 +171,24 @@ def extend_memory(memory, chat_history):
         ai_message = chat_history.messages[i + 1]
         assert isinstance(human_message, HumanMessage)
         assert isinstance(ai_message, AIMessage)
+        memory.save_context(
+            inputs={"input": human_message.content},
+            outputs={"output": ai_message.content},
+        )
+    return memory
+
+
+def extend_memory_flipped(memory, dialogue_chat):
+    """
+    TODO: add this capability to ChatMessageHistory
+
+    Flips the role of AI and human in the dialogue
+    """
+    for i in range(1, len(dialogue_chat.messages) - 1, 2):
+        human_message = dialogue_chat.messages[i]
+        ai_message = dialogue_chat.messages[i + 1]
+        # assert isinstance(human_message, HumanMessage)
+        # assert isinstance(ai_message, AIMessage)
         memory.save_context(
             inputs={"input": human_message.content},
             outputs={"output": ai_message.content},
