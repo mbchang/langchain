@@ -34,7 +34,7 @@ class GenerativeAgentMemory(BaseMemory):
 
     aggregate_importance: float = 0.0  # : :meta private:
     """Track the sum of the 'importance' of recent memories.
-    
+
     Triggers reflection when it reaches reflection_threshold."""
 
     max_tokens_limit: int = 1200  # : :meta private:
