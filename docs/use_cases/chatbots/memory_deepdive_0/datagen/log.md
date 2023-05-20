@@ -59,6 +59,20 @@
     - it took 40 minutes to load and summarize 23 chapters (gpt-4)
     - I ran into token limits when calculating my response for this memory model. Perhaps the memory model should automatically try to take care of this?
 
+- `generative_memory`:
+    - TODO:
+        - unify `add_memory` from the `GenerativeMemory` and `save_context`.
+        - fix bug:
+            ```
+            File ~/Dropbox (MIT Solar Car Team)/MacHD/projects/langchain/langchain/langchain/retrievers/time_weighted_retriever.py:14, in _get_hours_passed(time, ref_time)
+                12 def _get_hours_passed(time: datetime.datetime, ref_time: datetime.datetime) -> float:
+                13     """Get the hours passed between two datetime objects."""
+            ---> 14     return (time - ref_time).total_seconds() / 3600
+
+            TypeError: unsupported operand type(s) for -: 'datetime.datetime' and 'NoneType'
+            ```
+
+
 
 - overall
     - there may be a potential tradeoff between doing a lot of upfront computation of summarizing the history vs doing retrieval at inference time
